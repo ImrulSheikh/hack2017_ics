@@ -1,67 +1,75 @@
-import express from "express";
-import open from "open";
+// Setup basic express server
+var express = require('express');
+var app = express();
+var path = require('path');
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+var port = process.env.PORT || 3000;
 
-const app = express();
-const port = 3000;
-
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/pub/index.html');
+server.listen(port, function () {
+  console.log('Server listening at port %d', port);
 });
 
+// Routing
+app.use(express.static(path.join(__dirname, 'pub')));
+// Chatroom
 
-
-
-// var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-
-
+var numUsers = 0;
 
 io.on('connection', function (socket) {
-    console.log('a user connected');
-    socket.on('chat message', function (msg) {
-        console.log('message: ' + msg);
+  var addedUser = false;
+
+  // when the client emits 'new message', this listens and executes
+  socket.on('new message', function (data) {
+    // we tell the client to execute 'new message'
+    socket.broadcast.emit('new message', {
+      username: socket.username,
+      message: data
     });
-});
+  });
 
-io.emit('some event', { for: 'everyone' });
-io.on('connection', function (socket) {
-    socket.broadcast.emit('hi');
-});
+  // when the client emits 'add user', this listens and executes
+  socket.on('add user', function (username) {
+    if (addedUser) return;
 
-io.on('connection', function (socket) {
-    socket.on('chat message', function (msg) {
-        io.emit('chat message', msg);
+    // we store the username in the socket session for this client
+    socket.username = username;
+    ++numUsers;
+    addedUser = true;
+    socket.emit('login', {
+      numUsers: numUsers
     });
+    // echo globally (all clients) that a person has connected
+    socket.broadcast.emit('user joined', {
+      username: socket.username,
+      numUsers: numUsers
+    });
+  });
+
+  // when the client emits 'typing', we broadcast it to others
+  socket.on('typing', function () {
+    socket.broadcast.emit('typing', {
+      username: socket.username
+    });
+  });
+
+  // when the client emits 'stop typing', we broadcast it to others
+  socket.on('stop typing', function () {
+    socket.broadcast.emit('stop typing', {
+      username: socket.username
+    });
+  });
+
+  // when the user disconnects.. perform this
+  socket.on('disconnect', function () {
+    if (addedUser) {
+      --numUsers;
+
+      // echo globally that this client has left
+      socket.broadcast.emit('user left', {
+        username: socket.username,
+        numUsers: numUsers
+      });
+    }
+  });
 });
-// io.on('connection', function(socket){
-//     console.log('a user connected');
-//     socket.on('disconnect', function(){
-//       console.log('user disconnected');
-//     });
-//   });
-
-
-http.listen(3000, function () {
-    console.log('listening on *:3000');
-});
-
-
-// app.listen(port, function (err) {
-//     console.log(`Example app listening on port ${port}`);
-//     if (err) {
-//         console.log(err);
-//     } else {
-//         open("http://localhost:" + port);
-//     }
-// });
-
-
-// app.listen(port, function (err) {
-//     console.log(`Example app listening on port ${port}`);
-//     if (err) {
-//         console.log(err);
-//     } else {
-//         open("http://localhost:" + port);
-//     }
-// });
