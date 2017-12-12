@@ -1,0 +1,42 @@
+{
+  "name": "hack2017_ics",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "prestart": "npm-run-all --parallel security-check",
+    "start": "npm-run-all --parallel test server",
+    "server": "babel-node server.js",
+    "security-check": "nsp check",
+    "test": "mocha --require babel-core/register src/**/**.spec.js"
+  },
+  "dependencies": {
+    "express": "^4.15.4",
+    "winston": "^3.0.0-rc1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.3",
+    "babel-preset-env": "^1.6.0",
+    "chai": "^4.1.2",
+    "eslint": "^4.5.0",
+    "eslint-plugin-prettier": "^2.2.0",
+    "mocha": "^4.0.1",
+    "npm-run-all": "^4.0.2",
+    "nsp": "^3.1.0",
+    "open": "^0.0.5",
+    "prettier": "^1.5.3",
+    "sinon": "^4.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imrulh/hack2017_ics.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/imrulh/hack2017_ics/issues"
+  },
+  "homepage": "https://github.com/imrulh/hack2017_ics#readme"
+}
