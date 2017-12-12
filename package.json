@@ -7,6 +7,7 @@
     "prestart": "npm-run-all --parallel security-check",
     "start": "npm-run-all --parallel test server",
     "server": "babel-node server.js",
+    "watch": "babel-watch server.js",
     "security-check": "nsp check",
     "test": "mocha --require babel-core/register src/**/**.spec.js"
   },
@@ -19,6 +20,7 @@
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.3",
     "babel-preset-env": "^1.6.0",
+    "babel-watch": "^2.0.7",
     "chai": "^4.1.2",
     "eslint": "^4.5.0",
     "eslint-plugin-prettier": "^2.2.0",
